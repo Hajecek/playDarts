@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,700,500,600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <button class="settings-button">
+        <i class="fas fa-cog"></i>
+    </button>
+    <button class="new-game-button">
+        <i class="fas fa-plus"></i>
+    </button>
+    <button class="history-button">
+        <i class="fas fa-history"></i>
+    </button>
+    <div class="game-status-right">
+        Set <span id="currentSetDisplay">1</span>/<span id="totalSetsDisplay">1</span> - 
+        Leg <span id="currentLegDisplay">1</span>/<span id="totalLegsDisplay">1</span>
+    </div>
+    <div class="stats-top-left">
+        <div>Kolo: <span id="roundCounter">1</span></div>
+        <div>Celkem šipek: <span id="totalDarts">0</span></div>
+    </div>
+    <div class="overlay"></div>
+    <div class="settings-sidebar">
+        <div class="settings-content">
+            <h2>Nastavení</h2>
+            <div class="settings-item">
+                <label class="switch">
+                    <input type="checkbox" id="soundToggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="settings-label">Zvuky</span>
+            </div>
+            <div class="settings-item">
+                <label class="switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="settings-label">Tmavý režim</span>
+            </div>
+            <div class="settings-item">
+                <label class="switch">
+                    <input type="checkbox" id="autoDarkModeToggle">
+                    <span class="slider round"></span>
+                </label>
+                <span class="settings-label">Automatický tmavý režim</span>
+            </div>
+            <div class="auto-dark-mode-times" style="margin-top: 10px; display: none;">
+                <div style="margin-bottom: 10px; color: #ccc;">
+                    <label>Od: </label>
+                    <input type="time" id="darkModeStart" value="20:00">
+                </div>
+                <div style="color: #ccc;">
+                    <label>Do: </label>
+                    <input type="time" id="darkModeEnd" value="07:00">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="errorBanner" class="error-banner"></div>
+    <div class="container">
+        <div class="score-container">
+            <div class="player-score">
+                <div class="score-label">Hráč</div>
+                <div class="score"><span id="currentScore">501</span></div>
+            </div>
+            <div class="bot-score">
+                <div class="score-label"><span id="botNameDisplay">Bot</span></div>
+                <div class="score"><span id="botScoreDisplay">501</span></div>
+            </div>
+        </div>
+        <div class="stats" style="position: relative;bottom:30px;">
+            <div style="width: 100px;background: rgb(134, 214, 134);display: flex;justify-content: center;align-items:center;padding: 7px;border-radius: 8px;"><i class="fa-solid fa-gauge"></i> <span id="avgPerThree" style="margin-left: 10px;display: flex; justify-content: center;align-items: center;">0.00</span></div>
+        </div>
+        <div class="bot-status" style="display: none; text-align: center; margin: 10px 0;">
+            Bot: <span id="botScoreDisplay">501</span>
+        </div>
+        <div class="throws">
+            <div class="throw" id="throw1">-</div>
+            <div class="throw" id="throw2">-</div>
+            <div class="throw" id="throw3">-</div>
+        </div>
+        <div class="throw-total" id="throwTotal" style="display: none;">-</div>
+        <div class="input-area" style="display: none;">
+            <input type="number" id="manualInput" placeholder="Zadej body">
+            <button onclick="addManualScore()" class="control-btn">Přidat</button>
+        </div>
+        <div id="numberGrid" class="number-grid">
+            <button id="hideGridBtn" class="control-btn" style="grid-column: span 7;" onclick="toggleGrid()">🔒 Skrýt čísla</button>
+            <button id="voiceTotalBtn" class="control-btn" style="grid-column: span 3;">🎤 Ovládání hlasem - celkové číslo</button>
+            <button id="voicePerThrowBtn" class="control-btn" style="grid-column: span 2;">🎤 Ovládání hlasem - jednotlivě</button>
+            <button onclick="resetGame()" class="control-btn" style="grid-column: span 2;">🔄 Reset</button>
+            <button onclick="toggleMultiplier(2)" id="doubleBtn" class="control-btn multiplier-btn">Double</button>
+            <button onclick="toggleMultiplier(3)" id="tripleBtn" class="control-btn multiplier-btn">Triple</button>
+        </div>
+    </div>
+
+    <div class="new-game-modal" id="newGameModal">
+        <h2>Nová hra</h2>
+        <div class="input-group">
+            <label for="startingScore">Počáteční skóre:</label>
+            <input type="number" id="startingScore" placeholder="501" min="1" step="100" value="501">
+        </div>
+        <div class="input-group">
+            <label for="legs">Počet legů na set:</label>
+            <input type="number" id="legs" placeholder="3" min="1" value="3">
+        </div>
+        <div class="input-group">
+            <label for="sets">Počet setů:</label>
+            <input type="number" id="sets" placeholder="1" min="1" value="1">
+        </div>
+        <div class="input-group">
+            <label>Herní mód:</label>
+            <div class="game-mode-switch">
+                <div class="game-mode-option active" data-mode="single">Jeden hráč</div>
+                <div class="game-mode-option" data-mode="bot">Hra proti botovi</div>
+            </div>
+        </div>
+        <div class="input-group bot-settings" style="display: none;">
+            <label>Obtížnost bota:</label>
+            <div class="difficulty-buttons">
+                <div class="difficulty-btn" data-level="easy">
+                    <span class="level-name">Lehká</span>
+                    <span class="level-avg">Průměr: 40</span>
+                </div>
+                <div class="difficulty-btn" data-level="medium">
+                    <span class="level-name">Střední</span>
+                    <span class="level-avg">Průměr: 60</span>
+                </div>
+                <div class="difficulty-btn" data-level="hard">
+                    <span class="level-name">Těžká</span>
+                    <span class="level-avg">Průměr: 80</span>
+                </div>
+                <div class="difficulty-btn" data-level="pro">
+                    <span class="level-name">Profesionál</span>
+                    <span class="level-avg">Průměr: 100</span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <button class="confirm-btn" onclick="startNewGame()">Začít</button>
+            <button class="cancel-btn" onclick="closeNewGameModal()">Zrušit</button>
+        </div>
+    </div>
+    <div class="history-modal">
+        <div class="history-content">
+            <h2>Historie hodů</h2>
+            <div class="history-data">
+                <!-- Sem budou dynamicky přidávány záznamy -->
+            </div>
+            <button class="close-history-btn">Zavřít</button>
+        </div>
+    </div>
+    <script src="./js/GameModel.js"></script>
+    <script src="./js/Bot.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Přepínání herního módu
+        const gameModeOptions = document.querySelectorAll('.game-mode-option');
+        const botSettings = document.querySelector('.bot-settings');
+
+        gameModeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                gameModeOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                if (this.dataset.mode === 'bot') {
+                    botSettings.style.display = 'block';
+                } else {
+                    botSettings.style.display = 'none';
+                }
+            });
+        });
+
+        // Výběr obtížnosti
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        difficultyButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                difficultyButtons.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    });
+    </script>
+</body>
+</html>

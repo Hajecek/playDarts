@@ -1,0 +1,838 @@
+.settings-button {
+    color: rgb(0, 0, 0);
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+/* Pro mobilní zařízení */
+@media (max-width: 768px) {
+    .settings-button {
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+    }
+}
+body {
+    font-family: 'Clash Display', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: black;
+}
+.container { 
+    margin: 0 auto; 
+    padding: 20px;
+    padding-bottom: 300px; /* Prostor pro gridd */
+}
+
+.number-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+}
+.number-btn, .control-btn {
+    padding: 15px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: white;
+    touch-action: manipulation; /* Zlepšení odezvy na dotykovém zařízení */
+    font-family: 'Clash Display', sans-serif;
+}
+.control-btn-back {
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    color: white;
+    background-color: rgb(63, 146, 255);
+}
+.throw.checkout-suggestion {
+    background-color: #e6ffe6;
+    border: 2px solid #4CAF50;
+    color: #2e7d32;
+}
+.score { 
+    font-size: 190px; 
+    margin: 10px 0; 
+    font-weight: bold;
+    text-align: center;
+}
+.stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 16px;
+    justify-content: center;
+}
+.throws {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.throw {
+    min-width: 150px;
+    min-height: 50px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+    display: grid;
+    place-content: center;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.nine-darts {
+    position: fixed;
+    margin-bottom: 8rem;
+    display: inline-block;
+    background-color: #ff69b4;
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    line-height: 50px;
+    text-align: center;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+.input-area {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+#manualInput {
+    padding: 10px;
+    font-size: 16px;
+    width: 100px;
+}
+
+/* Mobilní styly */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+        padding-bottom: 260px;
+    }
+    .score {
+        font-size: 122px;
+    }
+    .stats {
+        font-size: 14px;
+    }
+    .number-grid {
+        gap: 3px;
+        padding: 5px;
+    }
+    .number-btn, .control-btn, .control-btn-back {
+        padding: 10px 5px;
+        font-size: 14px;
+        color: rgb(0, 0, 0);
+    }
+    .throw {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 100px;
+        min-height: 20px;
+        font-size: 24px;
+    }
+    #doubleBtn, #tripleBtn {
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+    #voiceTotalBtn, #voicePerThrowBtn {
+        font-size: 12px;
+    }
+}
+
+/* Zachování původních stylů */
+.selected { background-color: #4CAF50; color: white; }
+.active-multiplier { background-color: #c8c8c870 !important; color: rgb(0, 0, 0); }
+.voice-total-active .throws { display: none; }
+.voice-total-active .throw-total { display: block; }
+.voice-btn-active { background-color: #4CAF50; color: white; }
+.active-throw {
+    border: 2px solid #4CAF50;
+    background-color: #9dd19e;
+}
+#doubleBtn {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: 1px solid rgb(245, 190, 88);
+    background-color: rgb(255, 166, 2);
+    grid-column: 1 / 4;
+}
+#tripleBtn {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: 1px solid rgb(245, 88, 88);
+    background-color: rgb(255, 2, 2);
+    grid-column: 4 / 8;
+}
+.error-banner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 68, 68, 0.95);
+    color: white;
+    display: none;
+    z-index: 1000;
+    text-align: center;
+    font-size: 24px;
+    padding: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    max-width: 80%;
+}
+.throw-total {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+.settings-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Začíná schovaná mimo obrazovku */
+    width: 350px;
+    height: 100%;
+    background: linear-gradient(to right, #2c2c2c, #1a1a1a);
+    transition: right 0.3s ease-in-out;
+    z-index: 1999;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+}
+
+.settings-sidebar.active {
+    right: 0;
+}
+
+/* Překrytí pozadí při otevřené liště */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 998;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* Přidat do style sekce */
+.settings-content {
+    padding: 20px;
+    color: white;
+}
+
+.settings-content h2 {
+    margin-bottom: 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.settings-label {
+    margin-left: 15px;
+    font-size: 16px;
+}
+
+/* Stylování přepínače */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.new-game-button {
+    color: rgb(0, 0, 0);
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+/* Pro mobilní zařízení */
+@media (max-width: 768px) {
+    .new-game-button {
+        top: 10px;
+        left: 10px;
+        font-size: 20px;
+    }
+}
+
+.new-game-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    width: 300px;
+    text-align: center;
+}
+
+.new-game-modal h2 {
+    margin-bottom: 20px;
+}
+
+.new-game-modal input {
+    width: auto;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.new-game-modal button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.new-game-modal .confirm-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.new-game-modal .cancel-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Dark mode styly */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.dark-mode .number-grid {
+    background: #2c2c2c;
+}
+
+.dark-mode .number-btn,
+.dark-mode .control-btn {
+    background: #3a3a3a;
+    color: #ffffff;
+    border-color: #4a4a4a;
+}
+
+.dark-mode .throw {
+    background: #2c2c2c;
+    color: #ffffff;
+    border-color: #747474;
+}
+
+.dark-mode .current-throw-indicator {
+    background: #2c2c2c;
+    color: #ffffff;
+    border-color: #cbcbcb;
+}
+
+    .dark-mode #doubleBtn {
+        color: rgb(0, 0, 0);
+    }
+
+.dark-mode #tripleBtn {
+    color: rgb(0, 0, 0);
+}
+
+.dark-mode .throw-total {
+    background: #2c2c2c;
+    color: #ffffff;
+    border-color: #747474;
+}
+
+.dark-mode .voice-btn-active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.dark-mode .settings-button {
+    color: #ffffff;
+}
+
+.dark-mode .new-game-button {
+    color: #ffffff;
+}
+
+.dark-mode .throw.checkout-suggestion {
+    background-color: #1b4d1b;
+    border-color: #2e7d32;
+    color: #4CAF50;
+}
+
+.dark-mode .new-game-modal {
+    background: #2c2c2c;
+    color: #ffffff;
+}
+
+.dark-mode .active-multiplier {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.dark-mode .new-game-modal input {
+    background: #3a3a3a;
+    color: #ffffff;
+    border-color: #4a4a4a;
+}
+
+.auto-dark-mode-times input[type="time"] {
+    background: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+body .overlay.active ~ .settings-button i {
+    color: white !important;
+}
+
+/* Pro dark mode */
+body.dark-mode .overlay.active ~ .settings-button i {
+    color: white !important;
+}
+
+.settings-button.sidebar-active i {
+    color: white !important;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: inherit;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.dark-mode .input-group input {
+    background: #3a3a3a;
+    color: #ffffff;
+    border-color: #4a4a4a;
+}
+
+/* Upravit zobrazení aktuálního stavu hry */
+.game-status {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.game-status span {
+    font-weight: bold;
+}
+
+.score-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 20px 0;
+    gap: 20px;
+}
+
+.player-score, .bot-score {
+    flex: 1;
+    text-align: center;
+}
+
+#botScoreDisplay {
+    color:green !important;
+}
+
+.score-label {
+    font-size: 24px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.bot-score .score-label {
+    color:green !important;
+}
+
+.player-score .score, .bot-score .score {
+    font-size: 120px;
+    font-weight: bold;
+}
+
+/* Pro mobilní zařízení */
+@media (max-width: 768px) {
+    .player-score .score, .bot-score .score {
+        font-size: 80px;
+    }
+    .score-label {
+        font-size: 20px;
+    }
+}
+
+/* Dark mode styly */
+.dark-mode .score-label {
+    color: #ffffff;
+}
+
+.dark-mode .player-score .score,
+.dark-mode .score {
+    color: #ffffff;
+}
+
+.difficulty-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.difficulty-btn {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.difficulty-btn.selected {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.level-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.level-avg {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Dark mode styly */
+.dark-mode .difficulty-btn {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+    color: white;
+}
+
+.dark-mode .difficulty-btn.selected {
+    background: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.game-mode-switch {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.game-mode-option {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.game-mode-option.active {
+    background: #4CAF50;
+    color: white;
+}
+
+.difficulty-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.difficulty-btn {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.difficulty-btn.selected {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.level-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.level-avg {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Dark mode styly */
+.dark-mode .game-mode-switch {
+    background: #3a3a3a;
+}
+
+.dark-mode .difficulty-btn {
+    background: #3a3a3a;
+    border-color: #4a4a4a;
+    color: white;
+}
+
+.dark-mode .difficulty-btn.selected {
+    background: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Upravit styl pro stats container */
+.stats-top-left {
+    margin: 27px;
+    position: fixed;
+    left: 60px;
+    z-index: 1000;
+    display: flex;
+    gap: 15px;
+}
+
+.game-status-right {
+    margin: 27px;
+    position: fixed;
+    right: 60px;
+    z-index: 1000;
+    display: flex;
+}
+
+/* Pro mobilní zařízení */
+@media (max-width: 768px) {
+    .stats-top-left {
+        left: 40px;    
+        margin-top: 12px;
+        font-size: 14px;
+        gap: 10px;
+    }
+
+    .game-status-right {
+        right: 40px;
+        margin-top: 12px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+    .score-container {
+        margin-top: 50px;
+    }
+}
+
+/* Pro velmi malé obrazovky */
+@media (max-width: 380px) {
+    .stats-top-left {
+        left: 35px;
+        font-size: 12px;
+        gap: 8px;
+    }
+
+    .game-status-right {
+        right: 35px;
+        font-size: 12px;
+    }
+}
+
+.history-button {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: background-color 0.3s;
+}
+
+.history-button:hover {
+    background-color: #45a049;
+}
+
+.history-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1001;
+    min-width: 300px;
+    max-width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.dark-mode .history-modal {
+    background-color: #333;
+    color: white;
+}
+
+.history-content {
+    text-align: center;
+}
+
+.close-history-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-history-btn:hover {
+    background-color: #45a049;
+}
+
+.history-data {
+    margin: 20px 0;
+    text-align: left;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0 20px;
+}
+
+.history-entry {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.dark-mode .history-entry {
+    border-bottom-color: #555;
+}
+
+.history-entry:first-child {
+    font-weight: bold;
+    color: #4CAF50;
+}

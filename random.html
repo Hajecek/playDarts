@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Náhodný výběr hráče a terče</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: #333;
+        }
+
+        .page-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 300px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, background 0.3s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        button.reset {
+            background: #dc3545;
+        }
+
+        button.reset:hover {
+            background: #bb2d3b;
+        }
+
+        .player-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: slideIn 0.3s ease;
+        }
+
+        .result {
+            display: none;
+            padding: 20px;
+            text-align: center;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        h2{
+                text-align: center;
+                margin-bottom: 25px;
+            }
+
+        #savedPlayerList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .player-item.selected {
+            background: #d1e7dd;
+            font-weight: bold;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 900px) {
+            .page-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .page-wrapper {
+                padding: 10px;
+            }
+
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+            }
+            h2{
+                text-align: center;
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="container">
+            <h1 class="title">Náhodný výběr hráče a číslo na terči</h1>
+            
+            <div class="input-group">
+                <input type="text" id="playerInput" placeholder="Zadej jméno hráče">
+                <button onclick="addPlayer()">Přidat</button>
+            </div>
+
+            <div class="button-group">
+                <button onclick="selectRandomPlayer()">Losovat hráče</button>
+                <button onclick="selectRandomTarget()">Losovat číslo</button>
+                <button onclick="resetPlayers()" class="reset">Resetovat hráče</button>
+            </div>
+            
+            <div id="playerResult" class="result"></div>
+            <div id="targetResult" class="result"></div>
+        </div>
+
+        <div class="sidebar">
+            <h2>Seznam hráčů</h2>
+            <div id="savedPlayerList"></div>
+        </div>
+    </div>
+
+    <script>
+        let players = JSON.parse(localStorage.getItem('players')) || [];
+        const targets = [
+            ...Array.from({length: 20}, (_, i) => `D${i + 1}`),
+            ...Array.from({length: 20}, (_, i) => `T${i + 1}`),
+            'Bull (25)',
+            'Double Bull (50)'
+        ];
+        
+        function addPlayer() {
+            const input = document.getElementById('playerInput');
+            const name = input.value.trim();
+            
+            if (name) {
+                players.push(name);
+                input.value = '';
+                updatePlayerList();
+                savePlayers();
+            }
+        }
+
+        function savePlayers() {
+            localStorage.setItem('players', JSON.stringify(players));
+        }
+
+        function resetPlayers() {
+            players = [];
+            localStorage.removeItem('players');
+            updatePlayerList();
+            
+            // Reset results
+            document.getElementById('playerResult').style.display = 'none';
+            document.getElementById('targetResult').style.display = 'none';
+        }
+
+        function updatePlayerList() {
+            const savedList = document.getElementById('savedPlayerList');
+            if (players.length === 0) {
+                savedList.innerHTML = '<div style="text-align: center; color: #666;">Žádní hráči</div>';
+                return;
+            }
+            
+            savedList.innerHTML = players.map(player => 
+                `<div class="player-item">${player}</div>`
+            ).join('');
+        }
+
+        function selectRandomPlayer() {
+            if (players.length === 0) {
+                alert('Nejdříve přidejte nějaké hráče!');
+                return;
+            }
+            
+            const result = document.getElementById('playerResult');
+            const randomPlayer = players[Math.floor(Math.random() * players.length)];
+            
+            result.innerHTML = `
+                <strong style="font-size: 1.2em">Vybraný hráč:</strong>
+                <div style="font-size: 1.5em; margin-top: 10px">${randomPlayer}</div>
+            `;
+            result.style.display = 'block';
+
+            const savedList = document.getElementById('savedPlayerList');
+            const playerItems = savedList.getElementsByClassName('player-item');
+            for (let item of playerItems) {
+                item.classList.remove('selected');
+                if (item.textContent === randomPlayer) {
+                    item.classList.add('selected');
+                }
+            }
+        }
+
+        function selectRandomTarget() {
+            const result = document.getElementById('targetResult');
+            const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+            
+            result.innerHTML = `
+                <strong style="font-size: 1.2em">Vybraný D/T:</strong>
+                <div style="font-size: 1.5em; margin-top: 10px">${randomTarget}</div>
+            `;
+            result.style.display = 'block';
+        }
+
+        document.getElementById('playerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+
+        updatePlayerList();
+    </script>
+</body>
+</html>
