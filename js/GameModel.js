@@ -1,6 +1,7 @@
 let bot = null;
 let isPlayerTurn = true;
 let gameModeType = 'single';
+let playerName = localStorage.getItem('playerName') || 'Hráč';
 
 // Checkout combinations for score suggestions
 const checkoutCombinations = {
@@ -192,6 +193,21 @@ let setsWon = 0;
 
 const legsInput = document.getElementById('legs');
 const setsInput = document.getElementById('sets');
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+
+    // Nastavení jména hráče
+    const playerNameInput = document.getElementById('playerName');
+    playerNameInput.value = playerName;
+    document.querySelector('.player-score .score-label').textContent = playerName;
+
+    playerNameInput.addEventListener('input', function() {
+        playerName = this.value || 'Hráč';
+        localStorage.setItem('playerName', playerName);
+        document.querySelector('.player-score .score-label').textContent = playerName;
+    });
+});
 
 function updateCheckoutSuggestions() {
     const remainingThrows = 3 - (voiceMode === 'total' ? 0 : throws.length);

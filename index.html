@@ -48,6 +48,30 @@
         border-top-color: #444;
         color: #999;
     }
+
+    .settings-item {
+        margin: 15px 0;
+    }
+
+    .settings-item label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ccc;
+    }
+
+    .settings-item input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #444;
+        border-radius: 4px;
+        background: #333;
+        color: #fff;
+    }
+
+    .settings-item input[type="text"]:focus {
+        outline: none;
+        border-color: #666;
+    }
     </style>
 </head>
 <body>
@@ -72,6 +96,10 @@
     <div class="settings-sidebar">
         <div class="settings-content">
             <h2>Nastavení</h2>
+            <div class="settings-item">
+                <label for="playerName">Jméno hráče:</label>
+                <input type="text" id="playerName" placeholder="Zadejte své jméno">
+            </div>
             <div class="settings-item">
                 <label class="switch">
                     <input type="checkbox" id="soundToggle">
