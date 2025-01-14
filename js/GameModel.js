@@ -617,7 +617,9 @@ function saveState() {
         score: currentScore,
         throws: [...throws],
         round: currentRound,
-        totalDarts: totalDarts
+        totalDarts: totalDarts,
+        set: currentSet,
+        leg: currentLeg
     });
 }
 
@@ -702,30 +704,68 @@ function selectNumber(num) {
 
 function undoLastThrow() {
     if (history.length > 1) {
+        // Odstraníme poslední stav z historie
         history.pop();
-        const lastState = history[history.length - 1];
-        currentScore = lastState.score;
-        throws = lastState.throws ? [...lastState.throws] : [];
-        currentRound = lastState.round;
-        totalDarts = lastState.totalDarts;
         
-        // Přidaná kontrola - pokud se vrátíme na 501, resetujeme statistiky
-        if (currentScore === 501) {
-            currentRound = 1;
-            totalDarts = 0;
-            history = [{score: 501, throws: []}];
-        }
+        // Získáme předchozí stav
+        const previousState = history[history.length - 1];
         
+        // Okamžitě aktualizujeme všechny hodnoty
+        currentScore = previousState.score;
+        throws = previousState.throws ? [...previousState.throws] : [];
+        currentRound = previousState.round;
+        totalDarts = previousState.totalDarts;
+        currentSet = previousState.set || currentSet;
+        currentLeg = previousState.leg || currentLeg;
+        
+        // Aktualizace indexu aktuálního hodu
         currentThrowIndex = throws.length;
+        
+        // Okamžitá aktualizace UI
         updateDisplay();
         updateThrowIndicators();
         updateCheckoutSuggestions();
         
-        // Aktualizace historie v UI - odstraníme poslední záznam
+        // Okamžitá aktualizace historie v UI
         const historyData = document.querySelector('.history-data');
-        if (historyData.firstChild) {
-            historyData.removeChild(historyData.firstChild);
-        }
+        historyData.innerHTML = '';
+        
+        let currentSetInHistory = 1;
+        let currentLegInHistory = 1;
+        
+        history.forEach((state, index) => {
+            if (index === 0) return;
+            
+            if (state.set && state.set !== currentSetInHistory) {
+                currentSetInHistory = state.set;
+                const setDivider = document.createElement('div');
+                setDivider.className = `history-set-${currentSetInHistory} history-divider`;
+                setDivider.innerHTML = `<strong>Set ${currentSetInHistory}</strong>`;
+                historyData.appendChild(setDivider);
+            }
+            
+            if (state.leg && state.leg !== currentLegInHistory) {
+                currentLegInHistory = state.leg;
+                const legDivider = document.createElement('div');
+                legDivider.className = `history-leg-${currentSetInHistory}-${currentLegInHistory} history-divider`;
+                legDivider.innerHTML = `<em>Leg ${currentLegInHistory}</em>`;
+                historyData.appendChild(legDivider);
+            }
+            
+            if (state.throws && state.throws.length === 3) {
+                const throwSum = state.throws.reduce((sum, t) => sum + t.points, 0);
+                const throwDetails = state.throws.map(t => t.points).join(',');
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'history-entry';
+                historyEntry.textContent = `${throwSum} (${throwDetails})`;
+                historyData.appendChild(historyEntry);
+            } else if (state.voiceTotal) {
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'history-entry';
+                historyEntry.textContent = `${state.voiceTotal}`;
+                historyData.appendChild(historyEntry);
+            }
+        });
     }
 }
 

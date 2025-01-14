@@ -42,7 +42,7 @@ class DartsBot {
                 easy: 0.08,   // 8%
                 medium: 0.15, // 15%
                 hard: 0.25,   // 25%
-                pro: 0.35     // 35%
+                pro: 1     // 35%
             }[this.level];
         } else if (this.score >= 100) {
             return {
