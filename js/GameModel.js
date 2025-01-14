@@ -246,7 +246,7 @@ function convertSpokenNumberToCzech(text) {
         'pět': 5, 'pet': 5, 'šest': 6, 'sedm': 7, 'osm': 8, 'devět': 9,
         'deset': 10, 'jedenáct': 11, 'dvanáct': 12, 'třináct': 13,
         'čtrnáct': 14, 'patnáct': 15, 'šestnáct': 16, 'sedmnáct': 17,
-        'osmnáct': 18, 'devatenáct': 19, 'dvacet': 20
+        'osmnáct': 18, 'devatenáct': 19, 'dvacet': 20,
     };
 
     text = text.toLowerCase().trim();
@@ -732,6 +732,10 @@ function resetGame() {
     legsWon = 0;
     setsWon = 0;
     
+    // Vymazání historie v UI
+    const historyData = document.querySelector('.history-data');
+    historyData.innerHTML = ''; // Přidáno - vymaže obsah historie
+    
     if (winBanner) {
         winBanner.remove();
         winBannerDisplayed = false;
@@ -962,13 +966,16 @@ function startNewGame() {
         setsWon = 0;
         isPlayerTurn = true;
         
+        // Vymazání historie v UI
+        const historyData = document.querySelector('.history-data');
+        historyData.innerHTML = ''; // Přidáno - vymaže obsah historie
+        
         // Inicializace bota pokud je vybrán herní mód s botem
         if (gameModeType === 'bot') {
             const selectedDifficulty = document.querySelector('.difficulty-btn.selected');
             const botLevel = selectedDifficulty ? selectedDifficulty.dataset.level : 'medium';
             bot = new DartsBot(botLevel);
             
-            // Aktualizace zobrazení jména bota
             document.getElementById('botNameDisplay').textContent = bot.name;
         } else {
             bot = null;
@@ -1026,7 +1033,7 @@ function playSound(type) {
     if (!soundEnabled) return;
     
     const sounds = {
-        click: new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADQABERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERE//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAAAAAAAAAAAAkDxQpnpAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGQwD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ=='),
+        click: new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADQABERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERE//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAAAAAAAAAAAAkDxQpnpAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGQwD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ=='),
         error: new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADQABERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERE//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAAAAAAAAAAAAkC7LgjHAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGQwD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ=='),
         success: new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADQABERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERE//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjU0AAAAAAAAAAAAAAAAJAAAAAAAAAAAAkCf5s/YAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7EGQwD/AAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVQ==')
     };
@@ -1311,13 +1318,16 @@ function startNewGame() {
         setsWon = 0;
         isPlayerTurn = true;
         
+        // Vymazání historie v UI
+        const historyData = document.querySelector('.history-data');
+        historyData.innerHTML = ''; // Přidáno - vymaže obsah historie
+        
         // Inicializace bota pokud je vybrán herní mód s botem
         if (gameModeType === 'bot') {
             const selectedDifficulty = document.querySelector('.difficulty-btn.selected');
             const botLevel = selectedDifficulty ? selectedDifficulty.dataset.level : 'medium';
             bot = new DartsBot(botLevel);
             
-            // Aktualizace zobrazení jména bota
             document.getElementById('botNameDisplay').textContent = bot.name;
         } else {
             bot = null;
@@ -1632,6 +1642,22 @@ function updateHistory() {
     console.log('Hody:', throws);
     console.log('Součet:', throwSum);
     console.log('Detaily hodů:', throwDetails);
+    
+    // Kontrola, zda začíná nový set
+    if (currentSet > 1 && !document.querySelector(`.history-set-${currentSet}`)) {
+        const setDivider = document.createElement('div');
+        setDivider.className = `history-set-${currentSet} history-divider`;
+        setDivider.innerHTML = `<strong>Set ${currentSet}</strong>`;
+        historyData.insertBefore(setDivider, historyData.firstChild);
+    }
+    
+    // Kontrola, zda začíná nový leg
+    if ((currentLeg > 1 || currentSet > 1) && !document.querySelector(`.history-leg-${currentSet}-${currentLeg}`)) {
+        const legDivider = document.createElement('div');
+        legDivider.className = `history-leg-${currentSet}-${currentLeg} history-divider`;
+        legDivider.innerHTML = `<em>Leg ${currentLeg}</em>`;
+        historyData.insertBefore(legDivider, historyData.firstChild);
+    }
     
     if (throws.length === 3) {  // Přidáme záznam pouze když máme všechny 3 hody
         const historyEntry = document.createElement('div');
