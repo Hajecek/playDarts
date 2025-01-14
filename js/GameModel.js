@@ -354,6 +354,27 @@ function addScore(points) {
     
     // Aplikovat multiplier na body
     const finalPoints = points * activeMultiplier;
+
+    // Kontrola přehození
+    if (finalPoints > currentScore) {
+        showErrorBanner('Přehozeno!');
+        setTimeout(() => {
+            throws = [];
+            currentRound++;
+            currentThrowIndex = 0;
+            saveState();
+            updateDisplay();
+            updateThrowIndicators();
+            
+            // Pokud hraje bot, spustíme jeho tah
+            if (bot) {
+                isPlayerTurn = false;
+                playBotTurn();
+            }
+        }, 1000);
+        return;
+    }
+    
     currentScore -= finalPoints;
     
     throws.push({
@@ -428,6 +449,34 @@ function addVoiceTotal(points) {
                 recognition.start();
             }, 1000);
         }
+        return;
+    }
+
+    // Kontrola přehození
+    if (points > currentScore) {
+        showErrorBanner('Přehozeno!');
+        setTimeout(() => {
+            currentRound++;
+            throws = [];
+            history.push({
+                score: currentScore,
+                voiceTotal: null,
+                round: currentRound,
+                totalDarts: totalDarts
+            });
+            updateDisplay();
+            updateCheckoutSuggestions();
+            
+            // Pokud hraje bot, spustíme jeho tah
+            if (bot) {
+                isPlayerTurn = false;
+                playBotTurn();
+            }
+            
+            if (voiceMode === 'total' && recognition) {
+                recognition.start();
+            }
+        }, 1000);
         return;
     }
     
