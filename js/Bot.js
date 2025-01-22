@@ -31,7 +31,7 @@ class DartsBot {
     }
 
     getCheckoutChance() {
-        // Základní šance podle úrovně/
+        // Základní šance podle úrovně
         let baseChance = this.checkoutPercentages[this.level];
         
         // Upravené šance podle zbývajícího skóre
